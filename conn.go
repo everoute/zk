@@ -547,11 +547,13 @@ func (c *Conn) flushUnsentRequests(err error) {
 // Send error to all pending requests and clear request map
 func (c *Conn) flushRequests(err error) {
 	c.requestsLock.Lock()
-	for _, req := range c.requests {
-		req.complete(response{-1, err})
-	}
+	requests := c.requests
 	c.requests = make(map[int32]*request)
 	c.requestsLock.Unlock()
+
+	for _, req := range requests {
+		req.complete(response{-1, err})
+	}
 }
 
 // Send event to all interested watchers
