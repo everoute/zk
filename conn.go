@@ -786,6 +786,9 @@ func (c *Conn) sendData(req *request) error {
 	_, err = c.conn.Write(c.buf[:n+4])
 	c.conn.SetWriteDeadline(time.Time{})
 	if err != nil {
+		c.requestsLock.Lock()
+		delete(c.requests, req.xid)
+		c.requestsLock.Unlock()
 		req.complete(response{-1, err})
 		c.conn.Close()
 		return err
